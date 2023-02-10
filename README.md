@@ -1,4 +1,5 @@
-# Deep Neural Networks in Evaluation of Patients with Congenital Long QT Syndrome from the Surface 12-Lead Electrocardiogram
+# AI Long QT ECG analysis
+Deep Neural Networks in Evaluation of Patients with Congenital Long QT Syndrome from the Surface 12-Lead Electrocardiogram
 
 ## Step 1: Obtain MUSE ECGs
 
