@@ -12,7 +12,7 @@ Should be in XML format and the beginning of the files start like this:
 
 ## Step 2: Convert ECGs into CSV files
 
-Run `scripts/extract_ecg_xml.py` script, which converts a folder containing XML ECG files into CSV format, normalizes the voltage data, and resamples all the files (to 2500 samples over the file, 250 Hz over 10 second recording). 
+Run `lqtnet.extract_ecg_xml`, which converts a folder containing XML ECG files into CSV format, normalizes the voltage data, and resamples all the files (to 2500 samples over the file, 250 Hz over 10 second recording). 
 
 ## Step 3: Create metadata file
 
@@ -57,7 +57,7 @@ An example row:
 Please see example code below, showing inference for an `External validation` dataset:
 
 ```python
-import import_data # /scripts/import_data.py
+from lqtnet import import_data
 
 # directory containing normalized CSV files
 ECG_SOURCE_DIR = 'ecgs/csv_normalized_2500/'
