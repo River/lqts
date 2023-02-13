@@ -8,7 +8,7 @@ import pandas as pd
 from sklearn.preprocessing import StandardScaler
 from scipy import signal
 import argparse
-import untangle
+import lqtnet.untangle
 
 
 class ECGXMLExtract:
@@ -18,7 +18,7 @@ class ECGXMLExtract:
         self.lead_names = None
 
         try:
-            self.ecg = untangle.parse(path)
+            self.ecg = lqtnet.untangle.parse(path)
 
             self.patient_demographics = self.ecg.RestingECG.PatientDemographics
             self.test_demographics = self.ecg.RestingECG.TestDemographics

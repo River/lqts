@@ -1,11 +1,6 @@
 import os
-import sys
-
-sys.path.append("../scripts")
-
-import numpy as np
 import pandas as pd
-import sierraecg
+import lqtnet.sierraecg
 import argparse
 
 
@@ -15,7 +10,7 @@ class ECGXMLExtract:
         self.lead_voltages = None
 
         try:
-            ecg = sierraecg.read_file(path)
+            ecg = lqtnet.sierraecg.read_file(path)
             xml_leads = ecg.leads
 
             leads_df = pd.DataFrame()
