@@ -1,6 +1,12 @@
 # AI Long QT ECG analysis
 Deep Neural Networks in Evaluation of Patients with Congenital Long QT Syndrome from the Surface 12-Lead Electrocardiogram
 
+## Step 0: Install pip packages
+
+Install python packages.
+
+`python -m pip install -r requirements.txt`
+
 ## Step 1: Obtain MUSE ECGs
 
 Should be in XML format and the beginning of the files start like this:
