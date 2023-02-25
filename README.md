@@ -63,22 +63,19 @@ An example row:
 Please see example code below, showing inference for an `External validation` dataset:
 
 ```python
-from lqtnet import import_data
+import lqtnet
 
 # directory containing normalized CSV files
 ECG_SOURCE_DIR = 'ecgs/csv_normalized_2500/'
 MODEL_PATH = 'models/2023.01.30-11/'
 
 metadata = pd.read_csv('metadata/example_YYYYmmdd.csv', index_col=0)
-ext_df = metadata[
-    (metadata.set == 'External validation') &
-    (metadata.qc == 'Good')
-]
+ext_df = metadata.query('set == "External validation" and qc == "Good"')
 
-x_ext = import_data.df_import_csv_to_numpy(ext_df, from_dir=ECG_SOURCE_DIR)
-y_ext = import_data.df_to_np_labels(ext_df)
+x_ext = lqtnet.import_data.df_import_csv_to_numpy(ext_df, from_dir=ECG_SOURCE_DIR)
+y_ext = lqtnet.import_data.df_to_np_labels(ext_df)
 
-model = train._load_model(MODEL_PATH)
+model = lqtnet.train._load_model(MODEL_PATH)
 
 # make predictions - save this output for further analysis
 y_extval_pred = model.predict(x_extval)
