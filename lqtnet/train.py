@@ -8,8 +8,8 @@ from sklearn import metrics
 from tensorflow import keras
 import argparse
 
-import import_data
-from networks import convnet, resnet
+from lqtnet import import_data
+from lqtnet.networks import convnet, resnet
 
 # CometML experiment tracking
 

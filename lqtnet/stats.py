@@ -2,11 +2,9 @@ import numpy as np
 import pandas as pd
 from matplotlib import pyplot as plt
 from sklearn import metrics
-import train
 
-MODEL_PATH = 'models/2023.01.30-11/'
-METADATA_PATH = 'metadata/ecg_metadata_2023jan16_final.csv'
-ECG_SOURCE_DIR = 'ecgs/csv_normalized_2500/'
+from lqtnet import train
+
 
 def roc_pr_curves(y_true, y_probas, thresh, title, labels):
     """
@@ -45,19 +43,39 @@ def roc_pr_curves(y_true, y_probas, thresh, title, labels):
     auc = metrics.roc_auc_score(y_true, y_probas)
     display = metrics.RocCurveDisplay(fpr=fpr, tpr=tpr, roc_auc=auc)
     display.plot(ax=ax[1])
+    # threshold dot
     ix = np.where(roc_thresholds>=thresh)[0][-1]
     # ax[1].text(fpr[ix]+0.02,tpr[ix]-0.08, f"Sen {tpr[ix]:.2f}\nSpe {1-fpr[ix]:.2f}")
     ax[1].plot(fpr[ix],tpr[ix], marker='.', markersize=10)
 
     # PR curve
     precision, recall, pr_thresholds = metrics.precision_recall_curve(y_true, y_probas)
-    metrics.PrecisionRecallDisplay.from_predictions(
-        y_true, y_probas, ax=ax[2])
+    metrics.PrecisionRecallDisplay.from_predictions(y_true, y_probas, ax=ax[2])
     ax[2].set_ylabel("Precision")
     ax[2].set_xlabel("Recall")
     ax[2].get_legend().remove()
+    # threshold dot
     ix = np.where(pr_thresholds<=thresh)[0][-1]
     ax[2].plot(recall[ix],precision[ix], marker='.', markersize=10)
+
+def auc_ci(y_true, y_probas, n_samples):
+    """
+    Calculate AUC and 95% confidence interval (+/- 2 std around mean)
+    Bootstrapping technique, sampling with replacement
+    n_samples = number of samples to calculate
+    """
+    
+    auc = []
+    for _ in range(n_samples):
+        y_true_sample, y_probas_sample = resample(y_true, y_probas, replace=True)
+        auc.append(metrics.roc_auc_score(y_true_sample, y_probas_sample))
+
+    mean = np.mean(auc)
+    std = np.std(auc)
+    ci = (mean-2*std, mean+2*std)
+    result = f"{mean:.3f} ({ci[0]:.3f}-{ci[1]:.3f})"
+    return(result)
+
 
 def youden_thresh(y_true, y_probas):
     """
@@ -121,6 +139,10 @@ def lqt1_probas(y_true, y_probas):
 
 
 if __name__ == "__main__":
+    MODEL_PATH = 'models/2023.01.30-11/'
+    METADATA_PATH = 'metadata/ecg_metadata_2023jan16_final.csv'
+    ECG_SOURCE_DIR = 'ecgs/csv_normalized_2500/'
+
     (_, x_intval, x_extval, _, y_intval_true, y_extval_true) = train._import_data(
         metadata_path=METADATA_PATH,
         ecg_source_dir=ECG_SOURCE_DIR)
