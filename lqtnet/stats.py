@@ -99,9 +99,11 @@ def auc_ci(y_true, y_probas, n_samples):
         y_true_sample, y_probas_sample = resample(y_true, y_probas, replace=True)
         auc.append(metrics.roc_auc_score(y_true_sample, y_probas_sample))
 
+    percentiles = [2.5, 97.5] # for 95% confidence interval
+    ci = np.percentile(auc, percentiles)
+
     mean = np.mean(auc)
-    std = np.std(auc)
-    ci = (mean-2*std, mean+2*std)
+    
     result = f"{mean:.3f} ({ci[0]:.3f}-{ci[1]:.3f})"
     return(result)
 
