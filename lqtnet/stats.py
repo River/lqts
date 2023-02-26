@@ -5,6 +5,34 @@ from sklearn import metrics
 
 from lqtnet import train
 
+def baseline_chars(df):
+    # age
+    # sex
+    # ethnicity
+    # HR
+    # QTc, confirmed?
+    
+    print("(N=%d)" % df.shape[0])
+    
+    print("Age: %d±%d" % (df.age.mean(), df.age.std()))
+    num_female = df[df.sex == 'Female'].shape[0]
+    print("Female no (%%): %d (%.1f%%)" % (num_female, num_female/df.shape[0]*100))
+    print("Ethnicity:")
+    print(pd.DataFrame({"n":df.ethnicity.value_counts(),
+                        "%":df.ethnicity.value_counts(normalize=True).round(3)*100}))
+    print("HR: %d±%d" % (df.hr.mean(), df.hr.std()))
+    
+    num_qt_known = df.qt.notna().sum()
+    print("QT known (%%): %d (%.1f%%)" % (num_qt_known,num_qt_known/df.shape[0]*100))
+    
+    num_qt_confirmed = df[df.qt_confirmed==True].shape[0]
+    print("QT confirmed (%%): %d (%.1f%%)" % (num_qt_confirmed,num_qt_confirmed/df.shape[0]*100))
+    
+    print("QTc: %d±%d" % (df.qt.mean(),df.qt.std()))
+    
+    num_qt_prolonged = df[df.qt_prolonged==True].shape[0]
+    print("QT prolonged (%%): %d (%.1f%%)" % (num_qt_prolonged,num_qt_prolonged/df.shape[0]*100))
+
 
 def roc_pr_curves(y_true, y_probas, thresh, title, labels):
     """
