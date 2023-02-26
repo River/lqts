@@ -49,7 +49,7 @@ def roc_pr_curves(y_true, y_probas, thresh, title, labels):
     labels: array(2) category labels
     """
 
-    y_thresh = np.where(y_probas>thresh, 1, 0)
+    y_thresh = np.where(y_probas > thresh, 1, 0)
 
     fig, ax = plt.subplots(1,3,figsize=(12,3.5))
     plt.tight_layout(pad=3)
@@ -84,7 +84,7 @@ def roc_pr_curves(y_true, y_probas, thresh, title, labels):
     ax[2].set_xlabel("Recall")
     ax[2].get_legend().remove()
     # threshold dot
-    ix = np.where(pr_thresholds<=thresh)[0][-1]
+    ix = np.where(thresh < pr_thresholds)[0][0]
     ax[2].plot(recall[ix],precision[ix], marker='.', markersize=10)
 
 def auc_ci(y_true, y_probas, n_samples):

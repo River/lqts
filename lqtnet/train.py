@@ -62,7 +62,7 @@ def _load_model(model_path: str):
 
 
 def _train_and_save_model(
-    experiment, model, x_train, y_train, x_test, y_test, model_save_dir=MODEL_SAVE_DIR
+    experiment, model, x_train, y_train, x_test, y_test, model_save_dir
 ):
     """
     Train and save model
