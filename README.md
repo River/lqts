@@ -22,14 +22,13 @@ Run `lqtnet.extract_ecg_xml`, which converts a folder containing XML ECG files i
 
 ## Step 3: Create metadata file
 
-Suggest create a `metadata` folder and in that create a CSV file with the following columns:
+Create a `metadata` folder and in that create a CSV file with the following columns:
 
 ```csv
-,file,patient_id,ecg_id,id_site,set,batch,lqts_type,dob,age,sex,ethnicity,date,hr,qt,qt_confirmed,qt_prolonged,Qc,Qc_reason
+file,patient_id,ecg_id,id_site,set,batch,lqts_type,dob,age,sex,ethnicity,date,hr,qt,qt_confirmed,qt_prolonged,Qc,Qc_reason
 ```
 
 Descriptions for the columns:
-- first column is the index
 - `file`: file name (minus file extension)
 - `patient_id`: unique ID for patient (HiRO ID)
 - `ecg_id`: unique ID for the ECG file
@@ -51,8 +50,10 @@ Descriptions for the columns:
 
 An example row:
 ```csv
-19,005430_00032957,5430.0,32957.0,2.0,Derivation,2021_nov,Control,1947-07-15,75.0,Female,White,2019-03-20,68.0,410.0,True,False,Good,
+005430_00032957,5430.0,32957.0,2.0,Derivation,2021_nov,Control,1947-07-15,75.0,Female,White,2019-03-20,68.0,410.0,True,False,Good,
 ```
+
+Use `lqtnet.import_metadata.convert_dtypes()` to convert the dtypes for the files for more efficient storage. Save the final metadata file as `pickle` or `parquet`. 
 
 ## Step 4: Quality control
 
@@ -67,13 +68,13 @@ import lqtnet
 
 # directory containing normalized CSV files
 ECG_SOURCE_DIR = 'ecgs/csv_normalized_2500/'
-MODEL_PATH = 'models/2023.01.30-11/'
+MODEL_PATH = 'models/XYZ/'
 
-metadata = pd.read_csv('metadata/example_YYYYmmdd.csv', index_col=0)
+metadata = pd.read_parquet('metadata/example_YYYYmmdd.parquet')
 ext_df = metadata.query('set == "External validation" and qc == "Good"')
 
-x_ext = lqtnet.import_data.df_import_csv_to_numpy(ext_df, from_dir=ECG_SOURCE_DIR)
-y_ext = lqtnet.import_data.df_to_np_labels(ext_df)
+x_ext = lqtnet.import_ecgs.df_import_csv_to_numpy(ext_df, from_dir=ECG_SOURCE_DIR)
+y_ext = lqtnet.import_ecgs.df_to_np_labels(ext_df)
 
 model = lqtnet.train._load_model(MODEL_PATH)
 
