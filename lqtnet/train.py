@@ -35,7 +35,7 @@ OPTIMIZER = "adam"
 LOSS = "binary_crossentropy"
 
 
-def _import_data(ecg_source_dir=ECG_SOURCE_DIR):
+def _import_data(df, ecg_source_dir):
     """
     IMPORT DATA
     Edit the pandas df queries here to adjust which ECGs are included in training
