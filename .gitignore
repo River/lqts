@@ -4,6 +4,7 @@ models/
 .cometml-runs/
 scripts/sierraecg/
 notebooks/
+train.py
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

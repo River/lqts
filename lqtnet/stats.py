@@ -2,6 +2,7 @@ import numpy as np
 import pandas as pd
 from matplotlib import pyplot as plt
 from sklearn import metrics
+from sklearn.utils import resample
 
 from lqtnet import train
 

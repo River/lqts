@@ -8,12 +8,12 @@ from sklearn import metrics
 from tensorflow import keras
 import argparse
 
-from lqtnet import import_data
+from lqtnet import import_ecgs
 from lqtnet.networks import convnet, resnet
 
 # CometML experiment tracking
 
-METADATA_PATH = "metadata/ecg_metadata_2023jan16_final.csv"
+METADATA_PATH = "metadata/ecg_metadata_2023feb25.csv"
 ECG_SOURCE_DIR = "ecgs/csv_normalized_2500/"
 MODEL_SAVE_DIR = "models/"
 
@@ -52,13 +52,13 @@ def _import_data(metadata_path=METADATA_PATH, ecg_source_dir=ECG_SOURCE_DIR):
     test_df = df[(df.set == "Internal validation") & (df.qc == "Good")]
     ext_df = df[(df.set == "External validation") & (df.qc == "Good")]
 
-    x_train = import_data.df_import_csv_to_numpy(train_df, from_dir=ecg_source_dir)
-    x_test = import_data.df_import_csv_to_numpy(test_df, from_dir=ecg_source_dir)
-    x_ext = import_data.df_import_csv_to_numpy(ext_df, from_dir=ecg_source_dir)
+    x_train = import_ecgs.df_import_csv_to_numpy(train_df, from_dir=ecg_source_dir)
+    x_test = import_ecgs.df_import_csv_to_numpy(test_df, from_dir=ecg_source_dir)
+    x_ext = import_ecgs.df_import_csv_to_numpy(ext_df, from_dir=ecg_source_dir)
 
-    y_train = import_data.df_to_np_labels(train_df)
-    y_test = import_data.df_to_np_labels(test_df)
-    y_ext = import_data.df_to_np_labels(ext_df)
+    y_train = import_ecgs.df_to_np_labels(train_df)
+    y_test = import_ecgs.df_to_np_labels(test_df)
+    y_ext = import_ecgs.df_to_np_labels(ext_df)
 
     return (x_train, x_test, x_ext, y_train, y_test, y_ext)
 
