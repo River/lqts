@@ -13,7 +13,6 @@ from lqtnet.networks import convnet, resnet
 
 # CometML experiment tracking
 
-METADATA_PATH = "metadata/ecg_metadata_2023feb25.csv"
 ECG_SOURCE_DIR = "ecgs/csv_normalized_2500/"
 MODEL_SAVE_DIR = "models/"
 
@@ -36,7 +35,7 @@ OPTIMIZER = "adam"
 LOSS = "binary_crossentropy"
 
 
-def _import_data(metadata_path=METADATA_PATH, ecg_source_dir=ECG_SOURCE_DIR):
+def _import_data(ecg_source_dir=ECG_SOURCE_DIR):
     """
     IMPORT DATA
     Edit the pandas df queries here to adjust which ECGs are included in training
@@ -46,7 +45,6 @@ def _import_data(metadata_path=METADATA_PATH, ecg_source_dir=ECG_SOURCE_DIR):
         test: internal validation dataset
         ext: external validation dataset
     """
-    df = pd.read_csv(metadata_path, index_col=0)
 
     train_df = df[(df.set == "Derivation") & (df.qc == "Good")]
     test_df = df[(df.set == "Internal validation") & (df.qc == "Good")]
@@ -216,7 +214,6 @@ def _eval_model(experiment, model, x_test, y_test, x_ext, y_ext):
 
 
 if __name__ == "__main__":
-
     parser = argparse.ArgumentParser()
     parser.add_argument("--comet_api", help="CometML API code", required=True)
     args = parser.parse_args()
