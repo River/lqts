@@ -72,6 +72,7 @@ def roc_pr_curves(y_true, y_probas, thresh, title, labels):
     auc = metrics.roc_auc_score(y_true, y_probas)
     display = metrics.RocCurveDisplay(fpr=fpr, tpr=tpr, roc_auc=auc)
     display.plot(ax=ax[1])
+    ax[1].get_legend().remove()
     # threshold dot
     ix = np.where(thresh < roc_thresholds)[0][-1]
     # ax[1].text(fpr[ix]+0.02,tpr[ix]-0.08, f"Sen {tpr[ix]:.2f}\nSpe {1-fpr[ix]:.2f}")
@@ -103,7 +104,7 @@ def auc_ci(y_true, y_probas, n_samples):
     ci = np.percentile(auc, percentiles)
 
     mean = np.mean(auc)
-    
+
     result = f"{mean:.3f} ({ci[0]:.3f}-{ci[1]:.3f})"
     return(result)
 
