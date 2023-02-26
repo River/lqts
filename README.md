@@ -18,7 +18,7 @@ Should be in XML format and the beginning of the files start like this:
 
 ## Step 2: Convert ECGs into CSV files
 
-Run `lqtnet.extract_ecg_xml`, which converts a folder containing XML ECG files into CSV format, normalizes the voltage data, and resamples all the files (to 2500 samples over the file, 250 Hz over 10 second recording). 
+Run `python lqtnet/extract_ecg_xml.py`, which converts a folder containing XML ECG files into CSV format, normalizes the voltage data, and resamples all the files (to 2500 samples over the file, 250 Hz over 10 second recording). 
 
 ## Step 3: Create metadata file
 
