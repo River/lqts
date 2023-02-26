@@ -1,38 +1,12 @@
-import comet_ml
 import os
 from datetime import datetime
 import numpy as np
-import pandas as pd
 from matplotlib import pyplot as plt
 from sklearn import metrics
 from tensorflow import keras
-import argparse
 
 from lqtnet import import_ecgs
 from lqtnet.networks import convnet, resnet
-
-# CometML experiment tracking
-
-ECG_SOURCE_DIR = "ecgs/csv_normalized_2500/"
-MODEL_SAVE_DIR = "models/"
-
-COMET_OPT_CONFIG = {
-    "algorithm": "bayes",
-    "spec": {"maxCombo": 0, "objective": "minimize", "metric": "loss"},
-    "parameters": {
-        "model_type": {"type": "categorical", "values": ["ResNet"]},
-        "batch_size": {"type": "discrete", "values": [16, 32, 64]},
-        "epochs": {
-            "type": "integer",
-            "scalingType": "linear",
-            "min": 20,
-            "max": 500,
-        },
-    },
-    "trials": 1,
-}
-OPTIMIZER = "adam"
-LOSS = "binary_crossentropy"
 
 
 def _import_data(df, ecg_source_dir):
@@ -211,32 +185,3 @@ def _eval_model(experiment, model, x_test, y_test, x_ext, y_ext):
     )
     roc_curve(y_true, y_pred, title="LQTS type 1 vs type 2 (External Validation)")
     pr_curve(y_true, y_pred, title="LQTS type 1 vs type 2 (External Validation)")
-
-
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--comet_api", help="CometML API code", required=True)
-    args = parser.parse_args()
-
-    comet_ml.init(
-        project_name="lqts",
-        workspace="river",
-        api_key=args.comet_api,
-    )
-
-    x_train, x_test, x_ext, y_train, y_test, y_ext = _import_data()
-
-    opt = comet_ml.Optimizer(COMET_OPT_CONFIG)
-    for experiment in opt.get_experiments():
-        model = _build_model(experiment)
-
-        with experiment.train():
-            model, save_path = _train_and_save_model(
-                experiment, model, x_train, y_train, x_test, y_test
-            )
-            experiment.log_model(save_path, save_path)
-
-        with experiment.test():
-            _eval_model(experiment, model, x_test, y_test, x_ext, y_ext)
-
-    experiment.end()
