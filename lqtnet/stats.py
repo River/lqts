@@ -174,7 +174,7 @@ def roc_pr_curves(y_true, y_probas, thresh, title, labels, auc_text=None):
     if auc_text:
         ax[1].legend(labels=[auc_text], loc="lower right")
     # threshold dot
-    ix = np.where(thresh < roc_thresholds)[0][-1]
+    ix = np.where(thresh <= roc_thresholds)[0][-1]
     # ax[1].text(fpr[ix]+0.02,tpr[ix]-0.08, f"Sen {tpr[ix]:.2f}\nSpe {1-fpr[ix]:.2f}")
     ax[1].plot(fpr[ix], tpr[ix], marker=".", markersize=10)
     ax[1].text(
