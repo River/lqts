@@ -75,7 +75,7 @@ def lqts_carrier_true_label_and_probas(df):
     y_probas = (1 - df.pred0).to_numpy()
 
     return y_true, y_probas
-    
+
 
 def lqts1_vs_lqts2_true_label_and_probas(df):
     """
@@ -83,20 +83,20 @@ def lqts1_vs_lqts2_true_label_and_probas(df):
     When predictions are already saved to the DataFrame
 
     Returns:
-    y_true: nparray, 1 if LQTS1, 0 if LQTS2
-    y_proba: nparray, 0-1 prediction for LQTS1
+    y_true: nparray, 0 if LQTS1, 1 if LQTS2
+    y_proba: nparray, 0-1 prediction for LQTS2
     """
-    
+
     # Filter everything not LQTS1 or LQTS2
     df_ = df.query("lqts_type=='Type 1' or lqts_type=='Type 2'")
 
     # true labels for LQTS1
-    y_true = np.where(df_.lqts_type.to_numpy() == "Type 1", 1, 0)
+    y_true = np.where(df_.lqts_type.to_numpy() == "Type 1", 0, 1)
 
     # predicted LQTS1 probabilities
     # proba is pred(LQTS1) / ( pred(LQTS1) + pred(LQTS2) )
     # if the model predicted control=0.33, lqts1=0.33, lqts2=0.33, the output pred(lqts1) is 0.5
-    y_probas = (df_.pred1 / (df_.pred1 + df_.pred2)).to_numpy()
+    y_probas = (df_.pred2 / (df_.pred1 + df_.pred2)).to_numpy()
 
     return y_true, y_probas
 
