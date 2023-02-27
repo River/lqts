@@ -75,6 +75,59 @@ def lqts_carrier_true_label_and_probas(df):
     y_probas = (1 - df.pred0).to_numpy()
 
     return y_true, y_probas
+    
+
+def lqts1_vs_lqts2_true_label_and_probas(df):
+    """
+    LQTS1 vs LQTS2 label and predictions
+    When predictions are already saved to the DataFrame
+
+    Returns:
+    y_true: nparray, 1 if LQTS1, 0 if LQTS2
+    y_proba: nparray, 0-1 prediction for LQTS1
+    """
+    
+    # Filter everything not LQTS1 or LQTS2
+    df_ = df.query("lqts_type=='Type 1' or lqts_type=='Type 2'")
+
+    # true labels for LQTS1
+    y_true = np.where(df_.lqts_type.to_numpy() == "Type 1", 1, 0)
+
+    # predicted LQTS1 probabilities
+    # proba is pred(LQTS1) / ( pred(LQTS1) + pred(LQTS2) )
+    # if the model predicted control=0.33, lqts1=0.33, lqts2=0.33, the output pred(lqts1) is 0.5
+    y_probas = (df_.pred1 / (df_.pred1 + df_.pred2)).to_numpy()
+
+    return y_true, y_probas
+
+
+def lqt1_probas(y_true, y_probas):
+    """
+    Calculate model predictions for LQTS1 vs LQTS2
+
+    Input is [0/1,0/1,0/1] for [control,lqts1,lqts2]
+    Exclude [1,0,0] control examples
+    Only output lqts1 and lqts2 examples
+
+    Returns:
+    y_true = true genotype label lqts1/2
+    y_pred = predicted probability for lqts1
+    """
+
+    # Select where true label is not 'Control'
+    ix = np.where(y_true[:, 0] != 1)
+    # y_true is label for whether ECG is 'LQTS1'
+    y_true = y_true[ix, 1].flatten()
+
+    # y_probas is probability for 'LQTS1'
+    # if there is a case where the model guessed [0.33, 0.33, 0.33] (unsure if control/type 1/type 2)
+    # and the true genotype was type 1, instead of saying the probability of type 1 is 0.33, really it
+    # should be 0.5 (50/50% guess)
+    y_probas = np.apply_along_axis(
+        lambda a: a[0] / (a[0] + a[1]), 1, y_probas[ix, 1:3][0]
+    )
+
+    return y_true, y_probas
 
 
 def roc_pr_curves(y_true, y_probas, thresh, title, labels, auc_text=None):
@@ -124,7 +177,13 @@ def roc_pr_curves(y_true, y_probas, thresh, title, labels, auc_text=None):
     ix = np.where(thresh < roc_thresholds)[0][-1]
     # ax[1].text(fpr[ix]+0.02,tpr[ix]-0.08, f"Sen {tpr[ix]:.2f}\nSpe {1-fpr[ix]:.2f}")
     ax[1].plot(fpr[ix], tpr[ix], marker=".", markersize=10)
-    ax[1].text(fpr[ix]+0.03, tpr[ix]-0.01, f"Sen {sen:.2f}\nSpe {spe:.2f}", ha='left', va='top')
+    ax[1].text(
+        fpr[ix] + 0.03,
+        tpr[ix] - 0.01,
+        f"Sen {sen:.2f}\nSpe {spe:.2f}",
+        ha="left",
+        va="top",
+    )
 
     # PR curve
     precision, recall, pr_thresholds = metrics.precision_recall_curve(y_true, y_probas)
@@ -135,7 +194,9 @@ def roc_pr_curves(y_true, y_probas, thresh, title, labels, auc_text=None):
     # threshold dot
     ix = np.where(thresh < pr_thresholds)[0][0]
     ax[2].plot(recall[ix], precision[ix], marker=".", markersize=10)
-    ax[2].text(recall[ix]-0.03, precision[ix]-0.01, f"PPV {ppv:.2f}", ha='right', va='top')
+    ax[2].text(
+        recall[ix] - 0.03, precision[ix] - 0.01, f"PPV {ppv:.2f}", ha="right", va="top"
+    )
 
 
 def auc_ci(y_true, y_probas, n_samples):
@@ -197,29 +258,3 @@ def best_sen_thresh(y_true, y_probas):
     fpr, tpr, thresholds = metrics.roc_curve(y_true, y_probas)
     ix = np.argmax(tpr)
     return thresholds[ix]
-
-
-def lqt1_probas(y_true, y_probas):
-    """
-    Calculate model predictions for LQTS1 vs LQTS2
-
-    Input is [0/1,0/1,0/1] for [control,lqts1,lqts2]
-    Exclude [1,0,0] control examples
-    Only output lqts1 and lqts2 examples
-    y_true is the true genotype label lqts1/2
-    y_pred is the predicted probability for lqts1
-    """
-
-    # Select where true label is not 'Control'
-    ix = np.where(y_true[:, 0] != 1)
-    # y_true is label for whether ECG is 'LQTS1'
-    y_true = y_true[ix, 1].flatten()
-    # y_probas is probability for 'LQTS1'
-    # if there is a case where the model guessed [0.33, 0.33, 0.33] (unsure if control/type 1/type 2)
-    # and the true genotype was type 1, instead of saying the probability of type 1 is 0.33, really it
-    # should be 0.5 (50/50% guess)
-    y_probas = np.apply_along_axis(
-        lambda a: a[0] / (a[0] + a[1]), 1, y_probas[ix, 1:3][0]
-    )
-
-    return y_true, y_probas
