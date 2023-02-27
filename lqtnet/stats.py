@@ -77,7 +77,7 @@ def lqts_carrier_true_label_and_probas(df):
     return y_true, y_probas
 
 
-def roc_pr_curves(y_true, y_probas, thresh, title, labels):
+def roc_pr_curves(y_true, y_probas, thresh, title, labels, auc_text=None):
     """
     Plot confusion matrix, ROC curve, PR curve
 
@@ -99,10 +99,12 @@ def roc_pr_curves(y_true, y_probas, thresh, title, labels):
 
     # Confusion matrix
     cm = metrics.confusion_matrix(y_true=y_true, y_pred=y_thresh)
-    print(
-        f"Sen {cm[1][1]/(cm[1][0]+cm[1][1]):.2f}, Spe {cm[0][0]/(cm[0][0]+cm[0][1]):.2f}, \
-          PPV {cm[1][1]/(cm[1][1]+cm[0][1]):.2f}, NPV {cm[0][0]/(cm[0][0]+cm[1][0]):.2f}"
-    )
+    sen = cm[1][1] / (cm[1][0] + cm[1][1])
+    spe = cm[0][0] / (cm[0][0] + cm[0][1])
+    ppv = cm[1][1] / (cm[1][1] + cm[0][1])
+    npv = cm[0][0] / (cm[0][0] + cm[1][0])
+
+    print(f"Sen {sen:.2f}, Spe {spe:.2f}, PPV {ppv:.2f}, NPV {npv:.2f}")
     cm_disp = metrics.ConfusionMatrixDisplay(
         confusion_matrix=cm,
         display_labels=labels,
@@ -116,11 +118,13 @@ def roc_pr_curves(y_true, y_probas, thresh, title, labels):
     auc = metrics.roc_auc_score(y_true, y_probas)
     display = metrics.RocCurveDisplay(fpr=fpr, tpr=tpr, roc_auc=auc)
     display.plot(ax=ax[1])
-    ax[1].get_legend().remove()
+    if auc_text:
+        ax[1].legend(labels=[auc_text], loc="lower right")
     # threshold dot
     ix = np.where(thresh < roc_thresholds)[0][-1]
     # ax[1].text(fpr[ix]+0.02,tpr[ix]-0.08, f"Sen {tpr[ix]:.2f}\nSpe {1-fpr[ix]:.2f}")
     ax[1].plot(fpr[ix], tpr[ix], marker=".", markersize=10)
+    ax[1].text(fpr[ix]+0.03, tpr[ix]-0.01, f"Sen {sen:.2f}\nSpe {spe:.2f}", ha='left', va='top')
 
     # PR curve
     precision, recall, pr_thresholds = metrics.precision_recall_curve(y_true, y_probas)
@@ -131,6 +135,7 @@ def roc_pr_curves(y_true, y_probas, thresh, title, labels):
     # threshold dot
     ix = np.where(thresh < pr_thresholds)[0][0]
     ax[2].plot(recall[ix], precision[ix], marker=".", markersize=10)
+    ax[2].text(recall[ix]-0.03, precision[ix]-0.01, f"PPV {ppv:.2f}", ha='right', va='top')
 
 
 def auc_ci(y_true, y_probas, n_samples):
@@ -150,7 +155,7 @@ def auc_ci(y_true, y_probas, n_samples):
 
     mean = np.mean(auc)
 
-    result = f"{mean:.3f} ({ci[0]:.3f}-{ci[1]:.3f})"
+    result = f"AUC = {mean:.3f} ({ci[0]:.3f}-{ci[1]:.3f})"
     return result
 
 
