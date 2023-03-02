@@ -3,7 +3,7 @@ from typing import List
 import numpy as np
 import numpy.typing as npt
 
-from sierraecg.lzw import LzwDecoder
+from .lzw import LzwDecoder
 
 
 def xli_decode(data: bytes, labels: List[str]) -> List[npt.NDArray[np.int16]]:

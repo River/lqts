@@ -7,7 +7,7 @@ from defusedxml import minidom
 import numpy as np
 import numpy.typing as npt
 
-from sierraecg.xli import xli_decode
+from .xli import xli_decode
 
 
 class UnsupportedXmlFileError(RuntimeError):
