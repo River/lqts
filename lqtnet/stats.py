@@ -213,7 +213,9 @@ def auc_ci(y_true, y_probas, n_samples):
 
     auc = []
     for _ in range(n_samples):
-        y_true_sample, y_probas_sample = resample(y_true, y_probas, replace=True)
+        y_true_sample, y_probas_sample = resample(
+            y_true, y_probas, replace=True, stratify=y_true, n_samples=len(y_true)
+        )
         auc.append(metrics.roc_auc_score(y_true_sample, y_probas_sample))
 
     percentiles = [2.5, 97.5]  # for 95% confidence interval
