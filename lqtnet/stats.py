@@ -221,9 +221,28 @@ def auc_ci(y_true, y_probas, n_samples):
     percentiles = [2.5, 97.5]  # for 95% confidence interval
     ci = np.percentile(auc, percentiles)
 
-    mean = np.mean(auc)
+    result = f"{metrics.roc_auc_score(y_true, y_probas):.3f} ({ci[0]:.3f}-{ci[1]:.3f})"
+    return result
 
-    result = f"{mean:.3f} ({ci[0]:.3f}-{ci[1]:.3f})"
+
+def ci(y_true, y_pred, n_samples, stats_func):
+    """
+    Generic calculation 95% confidence interval for stats_func()
+    Bootstrapping technique, sampling with replacement
+    n_samples = number of samples to calculate
+    """
+
+    stat = []
+    for _ in range(n_samples):
+        y_true_sample, y_pred_sample = resample(
+            y_true, y_pred, replace=True, stratify=y_true, n_samples=len(y_true)
+        )
+        stat.append(stats_func(y_true_sample, y_pred_sample))
+
+    percentiles = [2.5, 97.5]  # for 95% confidence interval
+
+    ci = np.percentile(stat, percentiles)
+    result = f"{stats_func(y_true, y_pred):.3f} ({ci[0]:.3f}-{ci[1]:.3f})"
     return result
 
 
