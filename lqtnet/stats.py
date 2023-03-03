@@ -42,13 +42,13 @@ def baseline_chars(df):
     print(
         "QTc: %d±%d"
         % (
-            df.query("qt_confirmed==True").qt.mean(),
-            df.query("qt_confirmed==True").qt.std(),
+            df.query("qt_confirmed==True").qtc_manual.mean(),
+            df.query("qt_confirmed==True").qtc_manual.std(),
         )
     )
 
     # num_qt_prolonged = df[df.qt_prolonged==True].shape[0]
-    num_qt_prolonged = df.query("qt_confirmed==True and qt_prolonged==True").shape[0]
+    num_qt_prolonged = df.query("qt_confirmed==True and qtc_manual_prolonged==True").shape[0]
     print(
         "QT prolonged (%%): %d (%.1f%%)"
         % (num_qt_prolonged, num_qt_prolonged / df.shape[0] * 100)
