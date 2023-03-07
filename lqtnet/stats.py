@@ -8,11 +8,7 @@ from lqtnet import train
 
 
 def baseline_chars(df):
-    # age
-    # sex
-    # ethnicity
-    # HR
-    # QTc, confirmed?
+    '''Display baseline characteristics for df'''
 
     print("(N=%d)" % df.shape[0])
 
@@ -30,29 +26,25 @@ def baseline_chars(df):
     )
     print("HR: %d±%d" % (df.hr.mean(), df.hr.std()))
 
-    # num_qt_known = df.qt.notna().sum()
-    # print("QT known (%%): %d (%.1f%%)" % (num_qt_known,num_qt_known/df.shape[0]*100))
+    df_confirmed = df.query("qt_confirmed==True")
+    num_normal = \
+        df_confirmed.query("(sex=='Male' and qtc_manual<450) or \
+                           (sex=='Female' and qtc_manual<460) or \
+                           (sex=='Unknown sex' and qtc_manual<450)").shape[0]
+    num_borderline = \
+        df_confirmed.query("(sex=='Male' and 450<=qtc_manual<470) or \
+                           (sex=='Female' and 460<=qtc_manual<480) or \
+                           (sex=='Unknown sex' and 450<=qtc_manual<470)").shape[0]
+    num_prolonged = \
+        df_confirmed.query("(sex=='Male' and qtc_manual>=470) or \
+                           (sex=='Female' and qtc_manual>=480) or \
+                           (sex=='Unknown sex' and qtc_manual>=470)").shape[0]
 
-    num_qt_confirmed = df[df.qt_confirmed == True].shape[0]
-    print(
-        "QT confirmed (%%): %d (%.1f%%)"
-        % (num_qt_confirmed, num_qt_confirmed / df.shape[0] * 100)
-    )
-
-    print(
-        "QTc: %d±%d"
-        % (
-            df.query("qt_confirmed==True").qtc_manual.mean(),
-            df.query("qt_confirmed==True").qtc_manual.std(),
-        )
-    )
-
-    # num_qt_prolonged = df[df.qt_prolonged==True].shape[0]
-    num_qt_prolonged = df.query("qt_confirmed==True and qtc_manual_prolonged==True").shape[0]
-    print(
-        "QT prolonged (%%): %d (%.1f%%)"
-        % (num_qt_prolonged, num_qt_prolonged / df.shape[0] * 100)
-    )
+    print(f"QT confirmed (%): {df_confirmed.shape[0]} ({df_confirmed.shape[0]/df.shape[0]*100:.1f}%)")
+    print(f"QTc: {df_confirmed.qtc_manual.mean():.0f}±{df_confirmed.qtc_manual.std():.0f}")
+    print(f"Normal QTc: {num_normal} ({num_normal/df.shape[0]*100:.1f})")
+    print(f"Borderline QTc: {num_borderline} ({num_borderline/df.shape[0]*100:.1f})")
+    print(f"Prolonged QTc: {num_prolonged} ({num_prolonged/df.shape[0]*100:.1f})")
 
 
 def lqts_carrier_true_label_and_probas(df):
