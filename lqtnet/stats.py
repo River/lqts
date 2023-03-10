@@ -156,7 +156,6 @@ def roc_pr_curves(y_true, y_probas, thresh, title, labels, auc_text=None):
     y_thresh = np.where(y_probas > thresh, 1, 0)
 
     fig, ax = plt.subplots(1, 3, figsize=(12, 3.5))
-    plt.tight_layout(pad=3)
     fig.suptitle(title, y=1)
 
     # Confusion matrix
@@ -165,13 +164,19 @@ def roc_pr_curves(y_true, y_probas, thresh, title, labels, auc_text=None):
     spe = cm[0][0] / (cm[0][0] + cm[0][1])
     ppv = cm[1][1] / (cm[1][1] + cm[0][1])
     npv = cm[0][0] / (cm[0][0] + cm[1][0])
-
-    print(f"Sen {sen:.2f}, Spe {spe:.2f}, PPV {ppv:.2f}, NPV {npv:.2f}")
-    cm_disp = metrics.ConfusionMatrixDisplay(
-        confusion_matrix=cm,
-        display_labels=labels,
-    )
-    cm_disp.plot(cmap="Blues", ax=ax[0], colorbar=False)
+    
+    ax[0].imshow(cm, interpolation='nearest', cmap=plt.cm.Blues)
+    cm_thresh = cm.max() / 2.
+    cm_normalized = cm.astype('float') / cm.sum()
+    for i, j in itertools.product(range(cm.shape[0]), range(cm.shape[1])):
+        ax[0].text(
+            j, i, 
+            f"{cm[i, j]}\n({cm_normalized[i, j]*100:.1f}%)",
+            verticalalignment="center", horizontalalignment="center",
+            color="white" if cm[i, j] > cm_thresh else "black")
+    tick_marks = np.arange(len(labels))
+    ax[0].set_xticks(tick_marks, labels)
+    ax[0].set_yticks(tick_marks, labels)
     ax[0].set_xlabel("Predicted")
     ax[0].set_ylabel("True")
 
@@ -208,6 +213,8 @@ def roc_pr_curves(y_true, y_probas, thresh, title, labels, auc_text=None):
     ax[2].text(
         recall[ix] - 0.03, precision[ix] - 0.01, f"PPV {ppv:.2f}", ha="right", va="top"
     )
+
+    plt.tight_layout()
 
     f1_score = metrics.f1_score(y_true, y_thresh)
     return sen, spe, ppv, npv, f1_score
