@@ -31,3 +31,5 @@ An example script for how to request a prediction from the API is shown in `test
 ```json
 {"prediction":[[1.0,6.238670739950117e-14,7.81060166630404e-13]]}
 ```
+
+This corresponds to model scores for `[Normal, LQTS type 1, LQTS type 2]`. In this example, the ECG is predicted to be normal (i.e. control). 
