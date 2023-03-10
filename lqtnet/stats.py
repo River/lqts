@@ -3,6 +3,7 @@ import pandas as pd
 from matplotlib import pyplot as plt
 from sklearn import metrics
 from sklearn.utils import resample
+import itertools
 
 from lqtnet import train
 
