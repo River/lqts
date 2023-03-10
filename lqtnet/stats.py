@@ -27,24 +27,41 @@ def baseline_chars(df):
     print("HR: %d±%d" % (df.hr.mean(), df.hr.std()))
 
     df_confirmed = df.query("qt_confirmed==True")
-    num_normal = \
-        df_confirmed.query("(sex=='Male' and qtc_manual<450) or \
-                           (sex=='Female' and qtc_manual<460) or \
-                           (sex=='Unknown sex' and qtc_manual<450)").shape[0]
-    num_borderline = \
-        df_confirmed.query("(sex=='Male' and 450<=qtc_manual<470) or \
-                           (sex=='Female' and 460<=qtc_manual<480) or \
-                           (sex=='Unknown sex' and 450<=qtc_manual<470)").shape[0]
-    num_prolonged = \
-        df_confirmed.query("(sex=='Male' and qtc_manual>=470) or \
-                           (sex=='Female' and qtc_manual>=480) or \
-                           (sex=='Unknown sex' and qtc_manual>=470)").shape[0]
+    df_normal, df_borderline, df_prolonged = stratify_df_by_qtc(df)
+    num_normal = df_normal.shape[0]
+    num_borderline = df_borderline.shape[0]
+    num_prolonged = df_prolonged.shape[0]
 
     print(f"QT confirmed (%): {df_confirmed.shape[0]} ({df_confirmed.shape[0]/df.shape[0]*100:.1f}%)")
     print(f"QTc: {df_confirmed.qtc_manual.mean():.0f}±{df_confirmed.qtc_manual.std():.0f}")
-    print(f"Normal QTc: {num_normal} ({num_normal/df.shape[0]*100:.1f})")
-    print(f"Borderline QTc: {num_borderline} ({num_borderline/df.shape[0]*100:.1f})")
-    print(f"Prolonged QTc: {num_prolonged} ({num_prolonged/df.shape[0]*100:.1f})")
+    print(f"Normal QTc: {num_normal} ({num_normal/df_confirmed.shape[0]*100:.1f})")
+    print(f"Borderline QTc: {num_borderline} ({num_borderline/df_confirmed.shape[0]*100:.1f})")
+    print(f"Prolonged QTc: {num_prolonged} ({num_prolonged/df_confirmed.shape[0]*100:.1f})")
+
+
+def stratify_df_by_qtc(df):
+    '''
+    Splits df into 3 according to QTc
+    normal_df =     Normal QTc if <450 ms (men) or <460 ms (women)
+    borderline_df = Borderline QTc if 450-469 ms (men) or 460-479 ms (women)
+    prolonged_df =  Prolonged QTc if ≥470 ms (men) or ≥480 ms (women)
+    If unknown sex, use more stringent criteria for men
+    '''
+    df_confirmed = df.query("qt_confirmed==True")
+    df_normal = \
+        df_confirmed.query("(sex=='Male' and qtc_manual<450) or \
+                           (sex=='Female' and qtc_manual<460) or \
+                           (sex=='Unknown sex' and qtc_manual<450)")
+    df_borderline = \
+        df_confirmed.query("(sex=='Male' and 450<=qtc_manual<470) or \
+                           (sex=='Female' and 460<=qtc_manual<480) or \
+                           (sex=='Unknown sex' and 450<=qtc_manual<470)")
+    df_prolonged = \
+        df_confirmed.query("(sex=='Male' and qtc_manual>=470) or \
+                           (sex=='Female' and qtc_manual>=480) or \
+                           (sex=='Unknown sex' and qtc_manual>=470)")
+    
+    return df_normal, df_borderline, df_prolonged
 
 
 def lqts_carrier_true_label_and_probas(df):
