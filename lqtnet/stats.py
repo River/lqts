@@ -65,6 +65,31 @@ def stratify_df_by_qtc(df):
     return df_normal, df_borderline, df_prolonged
 
 
+def qtc_prolonged_for_sex(row):
+    '''
+    Like stratify_df_by_qtc, but does it row-wise (so that it can be applied to the df)
+    '''
+
+    # If QT not confirmed or sex unknown, return "Unknown"
+    if row.qt_confirmed==False or row.sex=='Unknown sex':
+        return "Unknown"
+
+    '''
+    Normal QTc if <450 ms (men) or <460 ms (women)
+    Borderline QTc if 450-469 ms (men) or 460-479 ms (women)
+    Prolonged QTc if ≥470 ms (men) or ≥480 ms (women)
+    '''
+    if row.sex=="Male":
+        if row.qtc_manual<450: return "Normal"
+        elif 450<=row.qtc_manual<470: return "Borderline"
+        else: return "Prolonged"
+
+    elif row.sex=="Female":
+        if row.qtc_manual<460: return "Normal"
+        elif 460<=row.qtc_manual<480: return "Borderline"
+        else: return "Prolonged"
+
+
 def lqts_carrier_true_label_and_probas(df):
     """
     LQTS1/2 carrier status label and predictions
