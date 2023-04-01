@@ -8,6 +8,14 @@ import pandas as pd
 from sklearn.preprocessing import StandardScaler
 from scipy import signal
 import argparse
+
+import os
+import sys
+
+dir2 = os.path.abspath("/volume/lqts")
+dir1 = os.path.dirname(dir2)
+if not dir1 in sys.path:
+    sys.path.append(dir1)
 import lqtnet.untangle
 
 
