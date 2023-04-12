@@ -14,8 +14,12 @@ def baseline_chars(df):
     print("(N=%d)" % df.shape[0])
 
     print("Age: %d±%d" % (df.age.mean(), df.age.std()))
+    num_pediatric = df.query("age <18").shape[0]
+    print("Age <18 (%%): %d (%.1f%%)" % (num_pediatric, num_pediatric / df.shape[0] * 100))
+
     num_female = df[df.sex == "Female"].shape[0]
     print("Female no (%%): %d (%.1f%%)" % (num_female, num_female / df.shape[0] * 100))
+
     print("Ethnicity:")
     print(
         pd.DataFrame(
@@ -38,7 +42,16 @@ def baseline_chars(df):
     print(f"Normal QTc: {num_normal} ({num_normal/df_confirmed.shape[0]*100:.1f})")
     print(f"Borderline QTc: {num_borderline} ({num_borderline/df_confirmed.shape[0]*100:.1f})")
     print(f"Prolonged QTc: {num_prolonged} ({num_prolonged/df_confirmed.shape[0]*100:.1f})")
+    print(num_ecg_per_pt(df))
 
+def num_ecg_per_pt(df):
+    '''
+    How many ECGs are present for each unique patient?
+    Returns the mean and the 95% confidence interval
+    '''
+    num_ecgs_per_pt = df.groupby('patient_id').agg(num_rows=('ecg_id', 'size')).reset_index().num_rows.to_numpy()
+    num_ecgs_per_pt_ci = np.percentile(num_ecgs_per_pt, [2.5, 97.5])
+    return f"Num ECGs per pt: {num_ecgs_per_pt.mean():.1f} ({num_ecgs_per_pt_ci[0]:.0f}-{num_ecgs_per_pt_ci[1]:.0f})"
 
 def stratify_df_by_qtc(df):
     '''
